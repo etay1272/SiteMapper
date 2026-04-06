@@ -1,9 +1,14 @@
-from crawler.crawler import fetch_page, extract_links
+from crawler.crawler import crawl
+import os
 
-url = "https://example.com"
 
-html = fetch_page(url)
+def main():
+    url = os.getenv("START_URL")
 
-links = extract_links(html)
+    links = crawl(url)
+    print(links)
 
-print(links)  
+
+if __name__ == "__main__":
+    main() 
+    
