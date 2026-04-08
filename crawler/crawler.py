@@ -2,6 +2,9 @@ import requests
 from bs4 import BeautifulSoup
 
 
+MAX_PAGES = 10
+
+
 def fetch_page(url: str) -> str:
     """
     Fetch HTML content from a given URL.
@@ -10,10 +13,16 @@ def fetch_page(url: str) -> str:
         url (str): The URL to fetch.
 
     Returns:
-        str: The HTML content of the page.
+        str: The HTML content of the page, or empty string if failed.
     """
-    response = requests.get(url, verify=False)
-    return response.text
+    try:
+        response = requests.get(url, verify=False)  # SSL fix
+        response.raise_for_status()
+        return response.text
+
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching {url}: {e}")
+        return ""
 
 
 def extract_links(html: str) -> list[str]:
@@ -25,13 +34,15 @@ def extract_links(html: str) -> list[str]:
 
     Returns:
         list[str]: A list of URLs found in the HTML.
-    """ 
+    """
     soup = BeautifulSoup(html, "html.parser")
     links = []
 
     for link in soup.find_all("a"):
         href = link.get("href")
-        links.append(href)
+
+        if href:
+            links.append(href)
 
     return links
 
@@ -49,7 +60,7 @@ def crawl(start_url: str) -> list[str]:
     visited = []
     to_visit = [start_url]
 
-    while to_visit:
+    while to_visit and len(visited) < MAX_PAGES:
         current_url = to_visit.pop(0)
 
         if current_url in visited:
@@ -61,6 +72,13 @@ def crawl(start_url: str) -> list[str]:
         links = extract_links(html)
 
         for link in links:
+            if not link:
+                continue
+
+            if not link.startswith("http"):
+                continue
+
             if link not in visited:
-                to_visit.append(link) 
-                return visited 
+                to_visit.append(link)
+
+    return visited
