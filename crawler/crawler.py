@@ -16,7 +16,7 @@ def fetch_page(url: str) -> str:
         str: The HTML content of the page, or empty string if failed.
     """
     try:
-        response = requests.get(url, verify=False)  # SSL fix
+        response = requests.get(url)
         response.raise_for_status()
         return response.text
 
