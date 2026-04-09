@@ -16,7 +16,7 @@ def fetch_page(url: str) -> str:
         str: The HTML content of the page, or empty string if failed.
     """
     try:
-        response = requests.get(url)
+        response = requests.get(url, verify=False)
         response.raise_for_status()
         return response.text
 
@@ -57,7 +57,7 @@ def crawl(start_url: str) -> list[str]:
     Returns:
         list[str]: A list of all visited URLs.
     """
-    visited = []
+    visited = set()
     to_visit = [start_url]
 
     while to_visit and len(visited) < MAX_PAGES:
@@ -66,7 +66,7 @@ def crawl(start_url: str) -> list[str]:
         if current_url in visited:
             continue
 
-        visited.append(current_url)
+        visited.add(current_url)
 
         html = fetch_page(current_url)
         links = extract_links(html)
@@ -81,4 +81,4 @@ def crawl(start_url: str) -> list[str]:
             if link not in visited:
                 to_visit.append(link)
 
-    return visited
+    return list(visited)

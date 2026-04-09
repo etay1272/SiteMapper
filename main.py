@@ -1,8 +1,11 @@
 from crawler.crawler import crawl
 import os
+from dotenv import load_dotenv
 
 
 def main():
+    load_dotenv()
+
     url = os.getenv("START_URL")
 
     links = crawl(url)
@@ -10,5 +13,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main() 
+    main()
     
